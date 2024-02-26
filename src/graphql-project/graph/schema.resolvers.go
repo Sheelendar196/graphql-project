@@ -23,18 +23,18 @@ func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEm
 		Department: input.Department,
 		Email:      input.Email,
 	}
-	r.Resolver.list = append(r.Resolver.list, employee)
+	//r.Resolver.list = append(r.Resolver.list, employee)
 	return employee, nil
 }
 
 // Employees is the resolver for the employees field.
 func (r *queryResolver) Employees(ctx context.Context) ([]*model.Employee, error) {
-	return r.Resolver.list, nil
+	return nil, nil
 }
 
 // GetEmployeeList is the resolver for the getEmployeeList field.
 func (r *queryResolver) GetEmployeeList(ctx context.Context) ([]*model.Employee, error) {
-	return r.Resolver.list, nil
+	return nil, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

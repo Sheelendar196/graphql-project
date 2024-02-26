@@ -11,6 +11,9 @@ import (
 
 	graph "github.com/sheelendar196/go-projects/graphql-project/graph"
 	generated "github.com/sheelendar196/go-projects/graphql-project/graph/generated"
+	"github.com/sheelendar196/go-projects/graphql-project/internal/core/service"
+	"github.com/sheelendar196/go-projects/graphql-project/internal/handlers/api"
+	"github.com/sheelendar196/go-projects/graphql-project/internal/infrastructure/repository"
 	logger "golang.org/x/exp/slog"
 )
 
@@ -36,8 +39,18 @@ func main() {
 
 func startServer(app *newrelic.Application) *http.Server {
 
+	empRepo := repository.NewEmployeeRepo(nil, app)
+	roleInteractor := service.NewEmployeeInteractor(empRepo)
+	if roleInteractor == nil {
+		panic("error while creating repo")
+	}
+	empProcessor := api.NewEmployeeProceeor(roleInteractor)
+
+	graphConfig := generated.NewExecutableSchema(
+		generated.Config{Resolvers: &graph.Resolver{EmployeeProcessor: empProcessor}})
 	mux := http.NewServeMux()
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(graphConfig)
+
 	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	mux.Handle("/query", srv)
 
