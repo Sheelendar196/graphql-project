@@ -27,3 +27,11 @@ func (es EmployeeInteractor) GetEmployeeByID(ctx context.Context, empID string) 
 func (es EmployeeInteractor) GetEmployeeList(ctx context.Context) ([]*domain.Employee, error) {
 	return es.Repo.GetEmployeeList(ctx)
 }
+
+func (es EmployeeInteractor) UpdateEmployeeDetails(ctx context.Context, input domain.Employee) (*domain.Employee, error) {
+	return es.Repo.UpdateEmployeeDetails(ctx, input)
+}
+
+func (es EmployeeInteractor) DeleteEmployee(ctx context.Context, empID string) (*domain.Employee, error) {
+	return es.Repo.DeleteEmployee(ctx, empID)
+}

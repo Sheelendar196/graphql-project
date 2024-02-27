@@ -13,8 +13,10 @@ import (
 
 type EmployeeProcessor interface {
 	SaveEmployee(ctx context.Context, employee model.Employee) error
-	GetEmployeeByID(ctx context.Context, empID string) (*model.Employee, error)
 	GetEmployeeList(ctx context.Context) ([]*model.Employee, error)
+	GetEmployee(ctx context.Context, empID string) (*model.Employee, error)
+	DeleteEmployee(ctx context.Context, empID string) (*model.Employee, error)
+	UpdateEmployee(ctx context.Context, input model.Employee) (*model.Employee, error)
 }
 
 type Resolver struct {

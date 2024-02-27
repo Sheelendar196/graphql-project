@@ -7,7 +7,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/newrelic/go-agent/v3/newrelic"
 
 	graph "github.com/sheelendar196/go-projects/graphql-project/graph"
 	generated "github.com/sheelendar196/go-projects/graphql-project/graph/generated"
@@ -22,24 +21,15 @@ var appName = "graphql-project"
 const defaultPort = "8080"
 
 func main() {
-	app, err := newrelic.NewApplication(
-		newrelic.ConfigAppName(appName),
-		newrelic.ConfigDistributedTracerEnabled(true),
-		newrelic.ConfigLicense("1232323432323454323456765432345676543234"),
-		newrelic.ConfigEnabled(true),
-	)
-	if err != nil {
-		logger.Error("error starting new relic err: %v", err)
-	}
 
-	server := startServer(app)
+	server := startServer()
 	shutdownServer(server)
 
 }
 
-func startServer(app *newrelic.Application) *http.Server {
+func startServer() *http.Server {
 
-	empRepo := repository.NewEmployeeRepo(nil, app)
+	empRepo := repository.NewEmployeeRepo(nil)
 	roleInteractor := service.NewEmployeeInteractor(empRepo)
 	if roleInteractor == nil {
 		panic("error while creating repo")

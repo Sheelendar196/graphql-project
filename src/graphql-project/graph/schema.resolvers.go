@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	graph "github.com/sheelendar196/go-projects/graphql-project/graph/generated"
 	"github.com/sheelendar196/go-projects/graphql-project/graph/model"
@@ -15,16 +14,7 @@ import (
 
 // CreateEmployee is the resolver for the createEmployee field.
 func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error) {
-	employee := model.Employee{
-		Name:       input.Name,
-		EmpID:      *input.Email,
-		Address:    input.Address,
-		IsActive:   input.IsActive,
-		ManagerID:  input.ManagerID,
-		Mobile:     input.Mobile,
-		Department: input.Department,
-		Email:      input.Email,
-	}
+	employee := getEmployeeFromInput(input)
 	err := r.EmployeeProcessor.SaveEmployee(ctx, employee)
 	if err != nil {
 		return nil, errors.New("employee details not saved into db")
@@ -34,17 +24,18 @@ func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEm
 
 // UpdateEmployee is the resolver for the updateEmployee field.
 func (r *mutationResolver) UpdateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error) {
-	panic(fmt.Errorf("not implemented: UpdateEmployee - updateEmployee"))
+	employee := getEmployeeFromInput(input)
+	return r.EmployeeProcessor.UpdateEmployee(ctx, employee)
 }
 
 // GetEmployee is the resolver for the getEmployee field.
 func (r *queryResolver) GetEmployee(ctx context.Context, empID string) (*model.Employee, error) {
-	panic(fmt.Errorf("not implemented: GetEmployee - getEmployee"))
+	return r.EmployeeProcessor.GetEmployee(ctx, empID)
 }
 
 // DeleteEmployee is the resolver for the deleteEmployee field.
 func (r *queryResolver) DeleteEmployee(ctx context.Context, empID string) (*model.Employee, error) {
-	panic(fmt.Errorf("not implemented: DeleteEmployee - deleteEmployee"))
+	return r.EmployeeProcessor.DeleteEmployee(ctx, empID)
 }
 
 // GetEmployeeList is the resolver for the getEmployeeList field.
@@ -67,6 +58,17 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) Employees(ctx context.Context) ([]*model.Employee, error) {
-	return r.EmployeeProcessor.GetEmployeeList(ctx)
+
+func getEmployeeFromInput(input model.NewEmployee) model.Employee {
+	employee := model.Employee{
+		Name:       input.Name,
+		EmpID:      *input.Email,
+		Address:    input.Address,
+		IsActive:   input.IsActive,
+		ManagerID:  input.ManagerID,
+		Mobile:     input.Mobile,
+		Department: input.Department,
+		Email:      input.Email,
+	}
+	return employee
 }
