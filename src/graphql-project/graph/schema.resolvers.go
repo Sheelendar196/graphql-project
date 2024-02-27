@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	graph "github.com/sheelendar196/go-projects/graphql-project/graph/generated"
 	"github.com/sheelendar196/go-projects/graphql-project/graph/model"
@@ -31,9 +32,19 @@ func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEm
 	return &employee, nil
 }
 
-// Employees is the resolver for the employees field.
-func (r *queryResolver) Employees(ctx context.Context) ([]*model.Employee, error) {
-	return nil, nil
+// UpdateEmployee is the resolver for the updateEmployee field.
+func (r *mutationResolver) UpdateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error) {
+	panic(fmt.Errorf("not implemented: UpdateEmployee - updateEmployee"))
+}
+
+// GetEmployee is the resolver for the getEmployee field.
+func (r *queryResolver) GetEmployee(ctx context.Context, empID string) (*model.Employee, error) {
+	panic(fmt.Errorf("not implemented: GetEmployee - getEmployee"))
+}
+
+// DeleteEmployee is the resolver for the deleteEmployee field.
+func (r *queryResolver) DeleteEmployee(ctx context.Context, empID string) (*model.Employee, error) {
+	panic(fmt.Errorf("not implemented: DeleteEmployee - deleteEmployee"))
 }
 
 // GetEmployeeList is the resolver for the getEmployeeList field.
@@ -49,3 +60,13 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) Employees(ctx context.Context) ([]*model.Employee, error) {
+	return r.EmployeeProcessor.GetEmployeeList(ctx)
+}

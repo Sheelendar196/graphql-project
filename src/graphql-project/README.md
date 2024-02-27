@@ -1,4 +1,6 @@
-To create graphql dummy templet: go run github.com/99designs/gqlgen init 
+To create graphql dummy templet: 
+go run github.com/99designs/gqlgen init 
+
 do changes in schema.graphqls  file and then run :
 go run github.com/99designs/gqlgen generate   
 

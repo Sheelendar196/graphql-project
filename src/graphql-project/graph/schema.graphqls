@@ -16,7 +16,8 @@ type Employee {
 }
 
 type Query {
-  employees: [Employee!]!
+  getEmployee(empID:String!): Employee!
+  deleteEmployee(empID:String!): Employee!
   getEmployeeList: [Employee!]!
 }
 
@@ -33,4 +34,5 @@ input NewEmployee{
 
 type Mutation {
   createEmployee(input: NewEmployee!): Employee!
+  updateEmployee(input: NewEmployee!): Employee!
 }

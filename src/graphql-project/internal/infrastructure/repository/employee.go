@@ -17,10 +17,6 @@ func NewEmployeeRepo(gormDB *gorm.DB, nrApp *newrelic.Application) *Employee {
 	return &Employee{}
 }
 
-func (e *Employee) CreateEmployeeObj(ctx context.Context, name, empID, mobile, email, department, add, managerID string, isActive bool) error {
-	return nil
-}
-
 func (e *Employee) SaveEmployee(ctx context.Context, employee *domain.Employee) error {
 	e.list = append(e.list, employee)
 	return nil
