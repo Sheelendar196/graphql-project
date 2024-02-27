@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 
 	graph "github.com/sheelendar196/go-projects/graphql-project/graph/generated"
 	"github.com/sheelendar196/go-projects/graphql-project/graph/model"
@@ -13,7 +14,7 @@ import (
 
 // CreateEmployee is the resolver for the createEmployee field.
 func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error) {
-	employee := &model.Employee{
+	employee := model.Employee{
 		Name:       input.Name,
 		EmpID:      *input.Email,
 		Address:    input.Address,
@@ -23,8 +24,11 @@ func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEm
 		Department: input.Department,
 		Email:      input.Email,
 	}
-	//r.Resolver.list = append(r.Resolver.list, employee)
-	return employee, nil
+	err := r.EmployeeProcessor.SaveEmployee(ctx, employee)
+	if err != nil {
+		return nil, errors.New("employee details not saved into db")
+	}
+	return &employee, nil
 }
 
 // Employees is the resolver for the employees field.
@@ -34,7 +38,7 @@ func (r *queryResolver) Employees(ctx context.Context) ([]*model.Employee, error
 
 // GetEmployeeList is the resolver for the getEmployeeList field.
 func (r *queryResolver) GetEmployeeList(ctx context.Context) ([]*model.Employee, error) {
-	return nil, nil
+	return r.EmployeeProcessor.GetEmployeeList(ctx)
 }
 
 // Mutation returns graph.MutationResolver implementation.

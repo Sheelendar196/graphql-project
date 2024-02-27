@@ -12,13 +12,11 @@ import (
 // go:generate go run github.com/99designs/gqlgen
 
 type EmployeeProcessor interface {
-	CreateEmployeeObj(ctx context.Context, name, empID, mobile, email, department, add, managerID string, isActive bool) error
-	SaveEmployee(ctx context.Context, employee model.NewEmployee) error
+	SaveEmployee(ctx context.Context, employee model.Employee) error
 	GetEmployeeByID(ctx context.Context, empID string) (*model.Employee, error)
 	GetEmployeeList(ctx context.Context) ([]*model.Employee, error)
 }
 
 type Resolver struct {
 	EmployeeProcessor EmployeeProcessor
-	//list []*model.Employee
 }
