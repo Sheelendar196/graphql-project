@@ -26,17 +26,45 @@ mutation createEmployee{
 
 
 query GetEmployeeList{
-  employees {
-    name
-    empID
-    mobile
-  }
-}
-
-query employees{
   getEmployeeList {
     name
     empID
     mobile
+    email
+  }
+} 
+
+query GetEmployeeByID{
+  getEmployee(empID:"em1232") {
+    name
+    empID
+    mobile
+    empID
+    department
+    address
+    managerID
+    email
+  }
+}
+
+query DeleteEmployeeBy{
+  deleteEmployee(empID:"em1232") {
+    name
+    empID
+    mobile
+    empID
+    department
+    address
+    managerID
+    email
+  }
+}
+
+mutation updateEmployee{
+  updateEmployee(input:{name:"shayam",empID:"em8343"
+    ,address:"marathalli"}){
+    name
+    empID
+    address
   }
 }

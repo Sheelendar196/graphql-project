@@ -62,7 +62,7 @@ type queryResolver struct{ *Resolver }
 func getEmployeeFromInput(input model.NewEmployee) model.Employee {
 	employee := model.Employee{
 		Name:       input.Name,
-		EmpID:      *input.Email,
+		EmpID:      input.EmpID,
 		Address:    input.Address,
 		IsActive:   input.IsActive,
 		ManagerID:  input.ManagerID,
