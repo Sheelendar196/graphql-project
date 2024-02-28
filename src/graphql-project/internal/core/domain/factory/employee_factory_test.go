@@ -21,7 +21,7 @@ func TestCreate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name:        "s",
+			name:        "create_error_case",
 			ctx:         context.Background(),
 			emp:         &domain.Employee{},
 			expectedErr: errors.New("not insert into db"),

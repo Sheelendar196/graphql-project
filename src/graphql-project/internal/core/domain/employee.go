@@ -25,18 +25,3 @@ type Employee struct {
 	LastUpdatedAt *time.Time `validate:""`
 	LastUpdatedBy *string    `validate:"omitempty,ascii,max=100"`
 }
-
-func GetEmployee(name, empID, mobile, email, department,
-	add, managerID string, isActive bool) *Employee {
-
-	return &Employee{
-		Name:       name,
-		EmpID:      empID,
-		Mobile:     &mobile,
-		Email:      &email,
-		Address:    &add,
-		ManagerID:  &managerID,
-		Department: &department,
-		IsActive:   &isActive,
-	}
-}

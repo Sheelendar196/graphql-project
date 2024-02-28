@@ -14,17 +14,6 @@ go run github.com/99designs/gqlgen generate
 // run mockery    
 mockery --name EmployeeService
 
-
-
-
-
-
-
-
-
-
-
-
  // queries and mutation for employee
 
 mutation createEmployee{
