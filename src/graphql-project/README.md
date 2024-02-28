@@ -1,11 +1,29 @@
-To create graphql dummy templet: 
+//To create graphql dummy templet: 
 go run github.com/99designs/gqlgen init 
 
-do changes in schema.graphqls  file and then run :
+//do changes in schema.graphqls  file and then run :
 go run github.com/99designs/gqlgen generate   
 
-after generate you can run server:
- go run server.go  
+//after generate you can run server:
+ go run main.go  
+
+//To generate mock
+// Go to interface folder 
+    cd internal/core/domain/worker
+
+// run mockery    
+mockery --name EmployeeService
+
+
+
+
+
+
+
+
+
+
+
 
  // queries and mutation for employee
 

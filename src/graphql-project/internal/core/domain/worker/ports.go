@@ -1,5 +1,6 @@
 package worker
 
+//go:generate mockery --name EmployeeService
 import (
 	"context"
 
