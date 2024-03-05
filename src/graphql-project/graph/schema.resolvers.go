@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 
 	graph "github.com/sheelendar196/go-projects/graphql-project/graph/generated"
 	"github.com/sheelendar196/go-projects/graphql-project/graph/model"
@@ -13,28 +14,33 @@ import (
 
 // CreateEmployee is the resolver for the createEmployee field.
 func (r *mutationResolver) CreateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error) {
-	employee := &model.Employee{
-		Name:       input.Name,
-		EmpID:      *input.Email,
-		Address:    input.Address,
-		IsActive:   input.IsActive,
-		ManagerID:  input.ManagerID,
-		Mobile:     input.Mobile,
-		Department: input.Department,
-		Email:      input.Email,
+	employee := getEmployeeFromInput(input)
+	err := r.EmployeeProcessor.SaveEmployee(ctx, employee)
+	if err != nil {
+		return nil, errors.New("employee details not saved into db")
 	}
-	r.Resolver.list = append(r.Resolver.list, employee)
-	return employee, nil
+	return &employee, nil
 }
 
-// Employees is the resolver for the employees field.
-func (r *queryResolver) Employees(ctx context.Context) ([]*model.Employee, error) {
-	return r.Resolver.list, nil
+// UpdateEmployee is the resolver for the updateEmployee field.
+func (r *mutationResolver) UpdateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error) {
+	employee := getEmployeeFromInput(input)
+	return r.EmployeeProcessor.UpdateEmployee(ctx, employee)
+}
+
+// GetEmployee is the resolver for the getEmployee field.
+func (r *queryResolver) GetEmployee(ctx context.Context, empID string) (*model.Employee, error) {
+	return r.EmployeeProcessor.GetEmployee(ctx, empID)
+}
+
+// DeleteEmployee is the resolver for the deleteEmployee field.
+func (r *queryResolver) DeleteEmployee(ctx context.Context, empID string) (*model.Employee, error) {
+	return r.EmployeeProcessor.DeleteEmployee(ctx, empID)
 }
 
 // GetEmployeeList is the resolver for the getEmployeeList field.
 func (r *queryResolver) GetEmployeeList(ctx context.Context) ([]*model.Employee, error) {
-	return r.Resolver.list, nil
+	return r.EmployeeProcessor.GetEmployeeList(ctx)
 }
 
 // Mutation returns graph.MutationResolver implementation.
@@ -45,3 +51,24 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+
+func getEmployeeFromInput(input model.NewEmployee) model.Employee {
+	employee := model.Employee{
+		Name:       input.Name,
+		EmpID:      input.EmpID,
+		Address:    input.Address,
+		IsActive:   input.IsActive,
+		ManagerID:  input.ManagerID,
+		Mobile:     input.Mobile,
+		Department: input.Department,
+		Email:      input.Email,
+	}
+	return employee
+}

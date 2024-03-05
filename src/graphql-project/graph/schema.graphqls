@@ -5,7 +5,7 @@
 
 type Employee {
   id: ID!
-  name: String!
+  name: String
   empID:String!
   mobile:String
   email:String
@@ -16,12 +16,13 @@ type Employee {
 }
 
 type Query {
-  employees: [Employee!]!
+  getEmployee(empID:String!): Employee!
+  deleteEmployee(empID:String!): Employee!
   getEmployeeList: [Employee!]!
 }
 
 input NewEmployee{
-  name: String!
+  name: String
   empID:String!
   mobile:String
   email:String
@@ -33,4 +34,5 @@ input NewEmployee{
 
 type Mutation {
   createEmployee(input: NewEmployee!): Employee!
+  updateEmployee(input: NewEmployee!): Employee!
 }

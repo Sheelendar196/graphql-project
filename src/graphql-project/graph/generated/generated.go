@@ -60,19 +60,23 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateEmployee func(childComplexity int, input model.NewEmployee) int
+		UpdateEmployee func(childComplexity int, input model.NewEmployee) int
 	}
 
 	Query struct {
-		Employees       func(childComplexity int) int
+		DeleteEmployee  func(childComplexity int, empID string) int
+		GetEmployee     func(childComplexity int, empID string) int
 		GetEmployeeList func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
 	CreateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error)
+	UpdateEmployee(ctx context.Context, input model.NewEmployee) (*model.Employee, error)
 }
 type QueryResolver interface {
-	Employees(ctx context.Context) ([]*model.Employee, error)
+	GetEmployee(ctx context.Context, empID string) (*model.Employee, error)
+	DeleteEmployee(ctx context.Context, empID string) (*model.Employee, error)
 	GetEmployeeList(ctx context.Context) ([]*model.Employee, error)
 }
 
@@ -170,12 +174,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateEmployee(childComplexity, args["input"].(model.NewEmployee)), true
 
-	case "Query.employees":
-		if e.complexity.Query.Employees == nil {
+	case "Mutation.updateEmployee":
+		if e.complexity.Mutation.UpdateEmployee == nil {
 			break
 		}
 
-		return e.complexity.Query.Employees(childComplexity), true
+		args, err := ec.field_Mutation_updateEmployee_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateEmployee(childComplexity, args["input"].(model.NewEmployee)), true
+
+	case "Query.deleteEmployee":
+		if e.complexity.Query.DeleteEmployee == nil {
+			break
+		}
+
+		args, err := ec.field_Query_deleteEmployee_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.DeleteEmployee(childComplexity, args["empID"].(string)), true
+
+	case "Query.getEmployee":
+		if e.complexity.Query.GetEmployee == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getEmployee_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetEmployee(childComplexity, args["empID"].(string)), true
 
 	case "Query.getEmployeeList":
 		if e.complexity.Query.GetEmployeeList == nil {
@@ -308,7 +341,8 @@ type Employee {
 }
 
 type Query {
-  employees: [Employee!]!
+  getEmployee(empID:String!): Employee!
+  deleteEmployee(empID:String!): Employee!
   getEmployeeList: [Employee!]!
 }
 
@@ -325,6 +359,7 @@ input NewEmployee{
 
 type Mutation {
   createEmployee(input: NewEmployee!): Employee!
+  updateEmployee(input: NewEmployee!): Employee!
 }
 `, BuiltIn: false},
 }
@@ -335,6 +370,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // region    ***************************** args.gotpl *****************************
 
 func (ec *executionContext) field_Mutation_createEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewEmployee
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewEmployee2githubᚗcomᚋsheelendar196ᚋgoᚑprojectsᚋgraphqlᚑprojectᚋgraphᚋmodelᚐNewEmployee(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.NewEmployee
@@ -361,6 +411,36 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_deleteEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["empID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("empID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["empID"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["empID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("empID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["empID"] = arg0
 	return args, nil
 }
 
@@ -855,8 +935,8 @@ func (ec *executionContext) fieldContext_Mutation_createEmployee(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_employees(ctx, field)
+func (ec *executionContext) _Mutation_updateEmployee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateEmployee(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -869,7 +949,7 @@ func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Employees(rctx)
+		return ec.resolvers.Mutation().UpdateEmployee(rctx, fc.Args["input"].(model.NewEmployee))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -881,12 +961,87 @@ func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Employee)
+	res := resTmp.(*model.Employee)
 	fc.Result = res
-	return ec.marshalNEmployee2ᚕᚖgithubᚗcomᚋsheelendar196ᚋgoᚑprojectsᚋgraphqlᚑprojectᚋgraphᚋmodelᚐEmployeeᚄ(ctx, field.Selections, res)
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋsheelendar196ᚋgoᚑprojectsᚋgraphqlᚑprojectᚋgraphᚋmodelᚐEmployee(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_employees(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateEmployee(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Employee_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Employee_name(ctx, field)
+			case "empID":
+				return ec.fieldContext_Employee_empID(ctx, field)
+			case "mobile":
+				return ec.fieldContext_Employee_mobile(ctx, field)
+			case "email":
+				return ec.fieldContext_Employee_email(ctx, field)
+			case "address":
+				return ec.fieldContext_Employee_address(ctx, field)
+			case "managerID":
+				return ec.fieldContext_Employee_managerID(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Employee_isActive(ctx, field)
+			case "department":
+				return ec.fieldContext_Employee_department(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateEmployee_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getEmployee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getEmployee(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetEmployee(rctx, fc.Args["empID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Employee)
+	fc.Result = res
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋsheelendar196ᚋgoᚑprojectsᚋgraphqlᚑprojectᚋgraphᚋmodelᚐEmployee(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getEmployee(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -915,6 +1070,92 @@ func (ec *executionContext) fieldContext_Query_employees(ctx context.Context, fi
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getEmployee_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_deleteEmployee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_deleteEmployee(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().DeleteEmployee(rctx, fc.Args["empID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Employee)
+	fc.Result = res
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋsheelendar196ᚋgoᚑprojectsᚋgraphqlᚑprojectᚋgraphᚋmodelᚐEmployee(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_deleteEmployee(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Employee_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Employee_name(ctx, field)
+			case "empID":
+				return ec.fieldContext_Employee_empID(ctx, field)
+			case "mobile":
+				return ec.fieldContext_Employee_mobile(ctx, field)
+			case "email":
+				return ec.fieldContext_Employee_email(ctx, field)
+			case "address":
+				return ec.fieldContext_Employee_address(ctx, field)
+			case "managerID":
+				return ec.fieldContext_Employee_managerID(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Employee_isActive(ctx, field)
+			case "department":
+				return ec.fieldContext_Employee_department(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_deleteEmployee_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -3056,6 +3297,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateEmployee":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateEmployee(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3098,7 +3346,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "employees":
+		case "getEmployee":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3107,7 +3355,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_employees(ctx, field)
+				res = ec._Query_getEmployee(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "deleteEmployee":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_deleteEmployee(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
